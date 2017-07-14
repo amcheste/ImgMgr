@@ -1,0 +1,29 @@
+#!/bin/bash
+
+container_id=$(docker run -d -p 8080:8080 img-mgr-test)
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to start test container"
+    echo "$container_id"
+    exit 255
+fi
+
+sleep 1
+
+out=$(curl -s -f localhost:8080/health)
+if [ $? -ne 0 ];then
+    echo "FAIL: Failed to get health"
+    echo "$out"
+    exit 255
+fi
+
+out=$(docker rm $container_id -f)
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to kill test container"
+    echo "$out"
+    exit 255
+fi
+
+
+echo "All Tests Successful..."
+
+exit 0
