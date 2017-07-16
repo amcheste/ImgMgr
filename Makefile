@@ -1,20 +1,23 @@
-sources = src/main.go \
-	src/handlers.go \
-	src/routes.go \
-	src/router.go \
-	src/logger.go 
-
 program = imgMgr
 container_name = img-mgr
 test_container = img-mgr-test
+build_container = img-mgr-build
 
-$(program): $(soures)
-	go build -o $(program) $(sources)
+.PHONY: build clean docker acceptance_tests
 
-docker: $(program)
+all: build docker 
+build:
+	docker build -t $(build_container) -f build/Dockerfile .
+	docker run --name $(build_container) $(build_container)
+	docker cp $(build_container):/root/scratch/src/ImgMgr/imgMgr .
+	docker rm $(build_container)
+	docker rmi $(build_container)
+
+docker:
 	docker build --pull -t $(container_name) .
+	rm $(program)
 
-acceptance_tests: $(program)
+acceptance_tests:
 	docker build --pull -t $(test_container) -f acceptance_tests/Dockerfile .
 	@echo
 	@echo "Running test_index"
@@ -28,9 +31,3 @@ acceptance_tests: $(program)
 	@echo
 	@echo "Running test_state"
 	./acceptance_tests/test_state
-
-clean:
-	@rm -f $(program)
-
-clean-docker:
-	docker rmi img-mgr-test -f
