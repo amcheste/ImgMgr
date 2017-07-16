@@ -1,0 +1,59 @@
+#!/bin/bash
+
+container_id=$(docker run -d -p 8080:8080 img-mgr-test)
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to start test container"
+    echo "$container_id"
+    exit 255
+fi
+
+sleep 1
+
+out=$(curl -s -f localhost:8080/albums)
+if [ $? -ne 0 ];then
+    echo "FAIL: Failed to get list of albums"
+    echo "$out"
+    exit 255
+fi
+
+fails=0
+
+echo $out | grep -q 'album1'
+if [ $? -ne 0 ]; then
+    echo "FAIL: album1 not listed"
+    fails=$((fails+1))
+fi
+
+echo $out | grep -q 'album2'
+if [ $? -ne 0 ]; then
+    echo "FAIL: album2 not listed"
+    fails=$((fails+1))
+fi
+
+echo $out | grep -q 'album3'
+if [ $? -ne 0 ]; then
+    echo "FAIL: album3 not listed"
+    fails=$((fails+1))
+fi
+
+echo $out | grep -q 'album4'
+if [ $? -eq 0 ]; then
+    echo "FAIL: album4 was listed"
+    fails=$((fails+1))
+fi
+
+out=$(docker rm $container_id -f)
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to kill test container"
+    echo "$out"
+    exit 255
+fi
+
+if [[ $fails -ne 0 ]]; then
+    echo "$fails Tests Failed..."
+    exit 255
+fi
+
+echo "All Tests Successful..."
+
+exit 0
