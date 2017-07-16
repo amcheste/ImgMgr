@@ -5,7 +5,7 @@ build_container = img-mgr-build
 
 .PHONY: build clean docker acceptance_tests
 
-all: build docker 
+all: build docker acceptance_tests clean
 build:
 	docker build -t $(build_container) -f build/Dockerfile .
 	docker run --name $(build_container) $(build_container)
@@ -15,7 +15,6 @@ build:
 
 docker:
 	docker build --pull -t $(container_name) .
-	rm $(program)
 
 acceptance_tests:
 	docker build --pull -t $(test_container) -f acceptance_tests/Dockerfile .
@@ -31,3 +30,7 @@ acceptance_tests:
 	@echo
 	@echo "Running test_state"
 	./acceptance_tests/test_state
+
+clean:
+	rm $(program)
+	docker rmi $(test_container)

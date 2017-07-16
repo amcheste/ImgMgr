@@ -6,7 +6,6 @@ services:
   - docker
 
 script:
-  - make
-  - make acceptance_tests
+  - make all
 
 
