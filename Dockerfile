@@ -1,5 +1,5 @@
 FROM scratch
 
-ADD imgMgr /
+Add imgMgr /
 
 CMD ["/imgMgr"]

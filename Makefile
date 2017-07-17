@@ -14,7 +14,7 @@ build:
 	docker rmi $(build_container)
 
 docker:
-	docker build --pull -t $(container_name) .
+	docker build -t $(container_name) .
 
 acceptance_tests:
 	docker build --pull -t $(test_container) -f acceptance_tests/Dockerfile .
